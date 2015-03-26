@@ -423,7 +423,7 @@ public class GUI extends javax.swing.JFrame {
         Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
         if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
             try {
-                desktop.browse(new URI("https://bitbucket.org/danyacosta91/proyecto_compiladores/wiki/Home"));
+                desktop.browse(new URI("https://github.com/danyacosta91/Proyecto_Compiladores/wiki"));
             } catch (Exception e) {
                 e.printStackTrace();
             }
