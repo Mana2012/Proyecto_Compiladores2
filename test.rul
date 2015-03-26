@@ -1,0 +1,11 @@
+main
+
+Int_num tmp = 3;
+
+write_ln ('C');
+
+for ( int_num tmp2 = 5; tmp2 > 10; tmp2++ ) begin_for
+write_ln ("jpla");
+end_for
+
+end_main

@@ -1,0 +1,271 @@
+package ASintactico;
+
+import java_cup.runtime.*;
+import java.util.*;
+import ASemantico.*;
+import ALexico.*;
+
+parser code {:
+	public ArrayList<Errores> listaErrores = new ArrayList<Errores>();
+	public Errores _errores = new Errores();
+
+
+	public ArrayList<Errores> getErrores(){
+		return listaErrores;
+	}
+	String mensajeError;
+
+
+	public void setError(String msg){
+		_errores.setMensaje("Error Sintactico: " + msg);
+		listaErrores.add( _errores );
+	}
+
+	public void setError(String msg, String tipo){
+		_errores.setMensaje("Error " + tipo + ": " + msg);
+	}
+
+	@Override
+	public void syntax_error(Symbol token){
+            ALexico._gui.selectorLinea.HighLightLine(token.left);
+            setError("Error sintactico en: '"+ token.value + "' En la linea: "+ (token.left+1) + " en la columna: "+(token.right+1));
+            ALexico._gui.WriteLn("Error sintactico en: '"+ token.value + "' En la linea: "+ (token.left+1) + " en la columna: "+(token.right+1));
+        }
+
+	@Override
+	public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception {
+		report_fatal_error("Error fatal", s);
+	}
+
+	@Override
+	public void report_error(String message, Object info) {
+		if(info instanceof Symbol) {
+			_errores = new Errores();
+			Symbol s = ((Symbol) info);
+			if(s.left >= 0) {
+				_errores.setLinea(s.left + 1);
+				if(s.right >= 0)
+					_errores.setColumna(s.right + 1);
+			}
+		}
+	}       
+
+	@Override
+	public void report_fatal_error(String message, Object info) {
+		done_parsing();
+		report_error(message, info);
+	}
+
+:};
+
+/* Terminales */
+terminal		MAIN, END_MAIN, PROCEDURE, BEGIN_PROCEDURE, END_PROCEDURE;
+terminal		PCOMA, COMA, PAR_DER, PAR_IZQ, BRA_DER, BRA_IZQ;
+terminal		NOT, OPSUM, OPRES, OPMULT, OPDIV, AND, OR;
+terminal		SELECT_CASE, BEGIN_SELECT_CASE, END_SELECT_CASE;
+terminal		CASE_OPT, BEGIN_CASE_OPT, END_CASE_OPT, DEFAULT_CASE, END_DEFAULT_CASE;
+terminal		OPREL_MEQ, OPREL_MAQ, OPREL_MEI, OPREL_MAI, OPREL_DIST;
+terminal		TRUE, FALSE, BOOL_OPER, CHAR_OPER, INT_NUM;
+terminal 		WHILE, BEGIN_WHILE, END_WHILE;
+terminal 		FOR, BEGIN_FOR, END_FOR;
+terminal 		IF, IF_THEN, END_IF, ELSE_IF; 
+terminal		WRITE, WRITE_LN, READ;
+terminal        NUM, CHAR_ARRAY, CHAR, ASIG;
+terminal 		DOUBLE_NUM, INCREMENTADORES;
+terminal 		STRING, DOUBLE, RETURN, IGUAL, VOID;
+terminal String	ID;
+
+/* No Terminales */
+non terminal  types, literal, literal_String, statements, inicio, inicial, void_type, operadorRel, function_definition;
+non terminal  statement, incremento, assignaciones, lista_parametros, lista_parametros2, select_case_body;
+non terminal  op_aritmeticas, lista_assig, return_value, lista_assig2, lista_assig3, asig_or_and, operaciones;
+non terminal  selection_statement, iteration_statement, declaration_statement, if_then_stmnt;
+
+start with inicio;
+
+inicio 
+    ::= MAIN statements END_MAIN
+    | error statements END_MAIN {: parser.setError("Existe un END_MAIN sin un MAIN."); :}
+    | error {: parser.setError("Error en el MAIN"); :};
+
+statements 
+    ::= statement statements
+    | statement;
+
+statement 
+    ::= selection_statement
+    | iteration_statement
+    | declaration_statement
+    | incremento PCOMA:semi    
+    | op_aritmeticas PCOMA:semi
+    | WRITE_LN PAR_IZQ literal_String lista_assig2 PAR_DER PCOMA :semi
+    | WRITE_LN PAR_IZQ literal_String PAR_DER PCOMA:semi
+    | WRITE_LN PAR_IZQ ID:id PAR_DER PCOMA:semi
+    | WRITE PAR_IZQ literal_String lista_assig2 PAR_DER PCOMA :semi
+    | WRITE PAR_IZQ literal_String PAR_DER PCOMA:semi
+    | WRITE PAR_IZQ ID:id PAR_DER PCOMA:semi
+    | READ PAR_IZQ literal_String lista_assig3 PAR_DER PCOMA:semi
+    | function_definition;
+
+selection_statement
+    ::= IF:ifs PAR_IZQ asig_or_and PAR_DER IF_THEN if_then_stmnt
+    | SELECT_CASE PAR_IZQ asig_or_and PAR_DER BEGIN_SELECT_CASE select_case_body END_SELECT_CASE;
+
+select_case_body
+    ::= CASE_OPT literal:lit BEGIN_CASE_OPT statements END_CASE_OPT
+    | CASE_OPT literal_String:lit BEGIN_CASE_OPT statements END_CASE_OPT
+    | CASE_OPT assignaciones:asig BEGIN_CASE_OPT statements END_CASE_OPT
+    | DEFAULT_CASE statements END_DEFAULT_CASE;
+
+if_then_stmnt
+    ::= statements END_IF
+    | statements ELSE_IF statements END_IF
+    | error {: parser.setError("Error en un IF o un SELECT_CASE"); :};
+
+iteration_statement
+    ::= FOR:fort PAR_IZQ inicial:inicial PCOMA assignaciones:assig PCOMA incremento PAR_DER BEGIN_FOR statements END_FOR
+    | WHILE:while2 PAR_IZQ asig_or_and PAR_DER BEGIN_WHILE statements END_WHILE;
+
+declaration_statement
+    ::= void_type:tipo ID:id PAR_IZQ PAR_DER BRA_IZQ statements BRA_DER
+    | types:tipo ID:id PAR_IZQ lista_parametros PAR_DER BRA_IZQ statements return_value:ret  PCOMA BRA_DER 
+    | types:tipo ID:id PAR_IZQ PAR_DER BRA_IZQ statements return_value:ret PCOMA BRA_DER
+    | types:tipo ID:id ASIG literal_String:lit PCOMA 
+    | types:tipo ID:id ASIG literal:lit PCOMA 
+    | types:tipo ID:id ASIG ID:id1 PCOMA 
+    | types:tipo ID:id ASIG ID:id1 PAR_IZQ lista_parametros2 PAR_DER PCOMA 
+    | void_type:tipo ID:id PAR_IZQ lista_parametros PAR_DER BRA_IZQ statements BRA_DER
+    | types:tipo ID:id ASIG ID:id1 PAR_IZQ PAR_DER PCOMA
+    | types:tipo ID:id PCOMA
+    | types:tipo ID:id lista_assig PCOMA
+    | ID:id ASIG ID:id1 PAR_IZQ PAR_DER PCOMA
+    | ID:id PAR_IZQ lista_parametros2 PAR_DER PCOMA
+    | ID:id ASIG ID:id1 PAR_IZQ lista_parametros2 PAR_DER PCOMA
+    | ID:id ASIG ID:id1 PCOMA
+    | ID:id ASIG literal_String:st_lit PCOMA
+    | ID:id ASIG literal:lit PCOMA;
+
+function_definition
+    ::= PROCEDURE ID:id BEGIN_PROCEDURE statements END_PROCEDURE;
+
+literal 
+    ::= NUM:il
+    | CHAR:cl
+    | DOUBLE:fl
+    | TRUE:tr
+    | FALSE:fls;
+
+literal_String 
+    ::= STRING:sl;
+
+types
+    ::= INT_NUM 
+    | CHAR_OPER
+    | CHAR_ARRAY
+    | DOUBLE_NUM
+    | BOOL_OPER;
+
+void_type
+    ::= VOID;
+
+asig_or_and
+    ::= assignaciones
+    | assignaciones OR asig_or_and 
+    | assignaciones AND asig_or_and
+    | assignaciones NOT asig_or_and;
+
+lista_assig
+    ::= COMA ID:id lista_assig
+    | COMA ID:id;
+    //| error {: parser.setError("ERROR en el lista asignacion"); :};
+
+lista_assig2 
+    ::= COMA ID:id
+    | COMA ID:id lista_assig2
+    | COMA literal
+    | COMA literal lista_assig2
+    | COMA literal_String 
+    | COMA literal_String lista_assig2
+    | error {: parser.setError("ERROR en la lista de assignaciones 2"); :};
+
+lista_assig3 
+    ::= COMA AND ID:id
+    | COMA AND ID:id lista_assig3;
+
+inicial
+    ::= types:tipo ID:id ASIG literal:lit
+    | types:tipo ID:id ASIG literal_String:lit
+    | error {: parser.setError("ERROR en la inicializacion."); :};
+
+incremento 
+    ::= ID:id INCREMENTADORES
+    | error INCREMENTADORES {: parser.setError("ERROR en los incrementadores."); :};
+
+operadorRel
+    ::= OPREL_MAI
+    | OPREL_MEI
+    | OPREL_MAQ
+    | OPREL_MEQ
+    | OPREL_DIST
+    | IGUAL;
+
+assignaciones 
+    ::= ID:id operadorRel literal:lit
+    | ID:id operadorRel literal_String :lit
+    | ID:id operadorRel ID:id1                  
+    | ID:id operadorRel ID:id1 PAR_IZQ lista_parametros2 PAR_DER
+    | error {: parser.setError("Error en las asignaciones"); :};
+
+lista_parametros
+    ::= types:tipo ID:id COMA lista_parametros
+    | types:tipo ID:id
+    | error {: parser.setError("Error en los parametros 1"); :};
+
+lista_parametros2 
+    ::= ID:id COMA lista_parametros2
+    | ID:id
+    | literal:lit COMA lista_parametros2
+    | literal:lit
+    | literal_String:lit COMA lista_parametros2
+    | literal_String:lit
+    | error{: parser.setError("Error en los parametros 2"); :};
+                  
+return_value
+    ::= RETURN literal_String :st_lit
+    | RETURN literal :lit
+    | RETURN ID:id
+    | RETURN ID:id PAR_IZQ PAR_DER operaciones:op op_aritmeticas:op_a
+    | RETURN ID:id operaciones:op op_aritmeticas:op_a 
+    | RETURN literal:lit operaciones:op op_aritmeticas:op_a
+    | RETURN ID:id PAR_IZQ PAR_DER
+    | RETURN ID:id PAR_IZQ lista_parametros2:par PAR_DER operaciones:op op_aritmeticas:op_a
+    | RETURN ID:id PAR_IZQ lista_parametros2:par PAR_DER;
+
+operaciones
+    ::= OPRES 
+    | OPSUM
+    | OPMULT
+    | OPDIV;
+
+op_aritmeticas
+    ::= types:tipo ID:id ASIG:asig literal:lit operaciones:op op_aritmeticas:op_a
+    | types:tipo ID:id ASIG:asig ID:id1 operaciones:op op_aritmeticas:op_a
+    | ID:id ASIG:asig ID:id1 operaciones:op op_aritmeticas:op_a
+    | ID:id ASIG:asig literal:lit operaciones:op op_aritmeticas:op_a
+    | ID:id operaciones:op op_aritmeticas:op_a
+    | ID:id PAR_IZQ PAR_DER operaciones:op op_aritmeticas:op_a
+    | ID:id PAR_IZQ PAR_DER
+    | ID:id PAR_IZQ lista_parametros2 PAR_DER operaciones:op op_aritmeticas:op_a
+    | ID:id
+    | literal:lit operaciones:op op_aritmeticas:op_a
+    | literal:lit
+    | PAR_IZQ:pl literal:lit operaciones:op op_aritmeticas:op_a PAR_DER:pr operaciones:op2 op_aritmeticas:op_a2
+    | PAR_IZQ:pl literal:lit operaciones:op op_aritmeticas:op_a PAR_DER:pr 
+    | PAR_IZQ:pl literal:lit PAR_DER:pr operaciones:op op_aritmeticas:op_a
+    | PAR_IZQ:pl literal:lit PAR_DER:pr
+    | PAR_IZQ:pl ID:id operaciones:op op_aritmeticas:op_a PAR_DER:pr operaciones:op2 op_aritmeticas:op_a2
+    | PAR_IZQ:pl ID:id operaciones:op op_aritmeticas:op_a PAR_DER:pr 
+    | types:tipo ID:id ASIG:asig PAR_IZQ:pl literal:lit operaciones:op op_aritmeticas:op_a PAR_DER:pr operaciones:op2 op_aritmeticas:op_a2
+    | types:tipo ID:id ASIG:asig PAR_IZQ:pl literal:lit operaciones:op op_aritmeticas:op_a PAR_DER:pr
+    | types:tipo ID:id ASIG:asig PAR_IZQ:pl ID:id1 operaciones:op op_aritmeticas:op_a PAR_DER:pr operaciones:op2 op_aritmeticas:op_a2
+    | types:tipo ID:id ASIG:asig PAR_IZQ:pl ID:id1 operaciones:op op_aritmeticas:op_a PAR_DER:pr;

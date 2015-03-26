@@ -1,0 +1,9 @@
+main
+
+int_num st = 12;
+
+if ( st > 3 ) if_then
+write_ln ("hola");
+end_if
+
+end_main
