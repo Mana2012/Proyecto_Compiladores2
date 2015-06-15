@@ -14,14 +14,15 @@ main
 {variables}
 	double_num doble = 0.11;
 {declaracion de un if}
-	if( char == 'h' ) if_then
-		write_ln("Total es: " );
-		char_oper pum = 'x';
-		char_array pom = "Soy un string";
+	if( string == "hola" ) if_then
+		writeln("Total es: " );
+		char_oper pupu = 'x';
+		char_array po = "Soy un string";
 	end_if
 
 	for ( int_num po =2; po <= 4; po ++ ) begin_for
 		char_array po = "Soy un string";
 	end_for
+
 
 end_main

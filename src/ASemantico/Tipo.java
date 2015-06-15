@@ -4,14 +4,11 @@
  */
 package ASemantico;
 
-public class Tipo 
-{
+public class Tipo {
     private int tipo = Tipo.NINGUNO;
     
-    public int getTamMemoria()
-    {
-        switch(this.tipo)
-        {
+    public int getTamMemoria(){
+        switch(this.tipo){
             case Tipo.INTEGER: return 4;
             case Tipo.BOOLEAN: return 4;
             case Tipo.CHARACTER: return 4;
@@ -19,21 +16,18 @@ public class Tipo
         }
     }
     
-    public Tipo( int tipo )
-    {
+    public Tipo( int tipo ){
        this.tipo = tipo;
     }
     
-    public int getTipo()
-    {
+    public int getTipo(){
         return this.tipo;
     }
     
     @Override
     public String toString()
     {
-        switch(tipo)
-        {
+        switch(tipo){
             case Tipo.NINGUNO: return "Ninguno";
             case Tipo.INTEGER: return "Integer";
             case Tipo.CHARACTER: return "Character";
@@ -49,8 +43,7 @@ public class Tipo
     }
     
     @Override
-    public boolean equals(Object otro)
-    {
+    public boolean equals(Object otro){
         Tipo OtroTipo = null;
         try{
             OtroTipo = (Tipo)otro;

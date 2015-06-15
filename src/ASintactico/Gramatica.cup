@@ -9,12 +9,10 @@ parser code {:
 	public ArrayList<Errores> listaErrores = new ArrayList<Errores>();
 	public Errores _errores = new Errores();
 
-
 	public ArrayList<Errores> getErrores(){
 		return listaErrores;
 	}
 	String mensajeError;
-
 
 	public void setError(String msg){
 		_errores.setMensaje("Error Sintactico: " + msg);
@@ -70,7 +68,7 @@ terminal 		WHILE, BEGIN_WHILE, END_WHILE;
 terminal 		FOR, BEGIN_FOR, END_FOR;
 terminal 		IF, IF_THEN, END_IF, ELSE_IF; 
 terminal		WRITE, WRITE_LN, READ;
-terminal        NUM, CHAR_ARRAY, CHAR, ASIG;
+terminal                NUM, CHAR_ARRAY, CHAR, ASIG;
 terminal 		DOUBLE_NUM, INCREMENTADORES;
 terminal 		STRING, DOUBLE, RETURN, IGUAL, VOID;
 terminal String	ID;
@@ -80,6 +78,10 @@ non terminal  types, literal, literal_String, statements, inicio, inicial, void_
 non terminal  statement, incremento, assignaciones, lista_parametros, lista_parametros2, select_case_body;
 non terminal  op_aritmeticas, lista_assig, return_value, lista_assig2, lista_assig3, asig_or_and, operaciones;
 non terminal  selection_statement, iteration_statement, declaration_statement, if_then_stmnt;
+
+/*Precedencias*/
+precedence left OPSUM, OPRES;
+precedence left OPMULT, OPDIV, MOD, DIV;
 
 start with inicio;
 

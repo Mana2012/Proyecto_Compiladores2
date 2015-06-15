@@ -10,8 +10,6 @@ public class Token {
     public String Token_Text;
     public int Column = -1,Line =-1,Token_Id = -1;
 
-
-
     public Token(int Token_Id, int Column,int Line, String Token_Text){
         this.Token_Id = Token_Id;
         this.Token_Text = Token_Text;
@@ -29,8 +27,7 @@ public class Token {
     }
 
     public static String getNameToken(int token){
-        switch(token)
-        {
+        switch(token){
             case Token.AND:
                 return "And";
             case Token.ARRAY:

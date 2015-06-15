@@ -1,105 +1,95 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package ASintactico;
 
-public class Node {
-    private String value;
-    private String type;
-    private Boolean visited;
-    private Node leftChild, rightChild;
+import java.util.ArrayList;
+import java.util.List;
 
-    public Node() {
-        value = "";
-        type = "";
-        visited = false;
-    }
+public class Node<T> {
+    private T data;
+	private List<Node<T>> children;
+	private Node<T> parent;
 
-    public Node(String value, String type, Boolean visited, Node leftChild, Node rightChild) {
-        this.value = value;
-        this.type = type;
-        this.visited = visited;
-        this.leftChild = leftChild;
-        this.rightChild = rightChild;
-    }
+	public Node(T data) {
+		this.data = data;
+		this.children = new ArrayList<Node<T>>();
+	}
 
-    public Node(String value, String type, Boolean visited) {
-        this.value = value;
-        this.type = type;
-        this.visited = visited;
-    }
+	public Node(Node<T> node) {
+		this.data = (T) node.getData();
+		children = new ArrayList<Node<T>>();
+	}
 
-    public Node(String value, String type, Boolean visited, Node leftChild) {
-        this.value = value;
-        this.type = type;
-        this.visited = visited;
-        this.leftChild = leftChild;
-        this.rightChild = null;
-    }
+	public void addChild(Node<T> child) {
+		child.setParent(this);
+		children.add(child);
+	}
 
-    public Node(String value, String type, Node leftChild) {
-        this.value = value;
-        this.type = type;
-        this.visited = false;
-        this.leftChild = leftChild;
-        this.rightChild = null;
-    }
+	public void addChildAt(int index, Node<T> child) {
+		child.setParent(this);
+		this.children.add(index, child);
+	}
 
-    public void SetValue(String value) {
-        this.value = value;
-    }
+	public void setChildren(List<Node<T>> children) {
+		for (Node<T> child : children)
+			child.setParent(this);
 
-    public String GetValue() {
-        return value;
-    }
+		this.children = children;
+	}
 
-    public void SetType(String type) {
-        this.type = type;
-    }
+	public void removeChildren() {
+		this.children.clear();
+	}
 
-    public String GetType() {
-        return type;
-    }
+	public Node<T> removeChildAt(int index) {
+		return children.remove(index);
+	}
+	
+	
+	public void removeThisIfItsAChild(Node<T> childToBeDeleted)
+	{
+		List <Node<T>> list = getChildren();
+		list.remove(childToBeDeleted);
+	}
 
-    public void SetVisited(Boolean visited) {
-        this.visited = visited;
-    }
+	public T getData() {
+		return this.data;
+	}
 
-    public Boolean GetVisited() {
-        return visited;
-    }
+	public void setData(T data) {
+		this.data = data;
+	}
 
-    public Node GetLeftChild() {
-        return leftChild;
-    }
+	public Node<T> getParent() {
+		return this.parent;
+	}
 
-    public void SetLeftChild(Node leftChild) {
-        this.leftChild = leftChild;
-    }
+	public void setParent(Node<T> parent) {
+		this.parent = parent;
+	}
 
-    public void SetRightChild(Node rightChild) {
-        this.rightChild = rightChild;
-    }
+	public List<Node<T>> getChildren() {
+		return this.children;
+	}
 
-    public Node GetRightChild() {
-        return rightChild;
-    }
-    
-    public String toString(){
-        return this.EvaluateToString();
-    }
+	public Node<T> getChildAt(int index) {
+		return children.get(index);
+	}
 
-    public String EvaluateToString() {
-        String temp = "";
-        if (leftChild != null) {
-            temp += leftChild.EvaluateToString();
-        }
-        temp += value;
-        if (rightChild != null) {
-            temp += rightChild.EvaluateToString();
-        }
-        return temp;
-    }
+	@Override
+	public boolean equals(Object obj) {
+		if (null == obj)
+			return false;
+
+		if (obj instanceof Node) {
+			if (((Node<?>) obj).getData().equals(this.data))
+				return true;
+		}
+
+		return false;
+	}
+
+	@Override
+	public String toString() {
+		return this.data.toString();
+	}
 }

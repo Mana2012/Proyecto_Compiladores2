@@ -374,13 +374,13 @@ public class ALexico_GUI {
 	public static Color texto_reserv = new Color(25,25,112),
 				  texto_normal = Color.black,
 				  texto_string = new Color(0,100,0),
-				  texto_comment = Color.CYAN,
+				  texto_comment = Color.lightGray,
 				  texto_const = Color.magenta,
                                   texto_id = new Color(153,50,204),
 				  texto_raro = Color.red,
                                   select_highlight = Color.cyan,
-                                  fondo = Color.lightGray,
-                                  error_highlight = Color.red;
+                                  fondo = Color.white,
+                                  error_highlight = Color.cyan;
 		  
    public static ColorPane getPane(String texto) {
       ColorPane pane = null;

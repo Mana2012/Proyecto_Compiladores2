@@ -21,13 +21,13 @@ public class PasFileFilter extends FileFilter {
     int i = s.lastIndexOf('.');
 
     if (i > 0 && i < s.length() - 1)
-      if (s.substring(i + 1).toLowerCase().equals("pas"))
+      if (s.substring(i + 1).toLowerCase().equals("rul"))
         return true;
 
     return false;
   }
 
   public String getDescription() {
-    return "*.pas";
+    return "*.rul";
   }
 }

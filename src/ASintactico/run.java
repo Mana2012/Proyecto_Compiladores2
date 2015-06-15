@@ -6,10 +6,6 @@
 
 package ASintactico;
 
-/**
- *
- * @author Agile HN
- */
 public class run {
     public static void main(String[] args) {
         String opciones[] = new String[5];
